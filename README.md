@@ -1,20 +1,9 @@
----------
-⚠️ This repository isn’t maintained anymore.
----------
 
 # Jira Login
 
 Used to store credentials for later use by other Jira Actions
 
 > ##### Only supports Jira Cloud. Does not support Jira Server (hosted)
-
-This is required by other actions like:
-- [`Transition`](https://github.com/marketplace/actions/jira-issue-transition) - Transition a Jira issue
-- [`Comment`](https://github.com/marketplace/actions/jira-add-comment) - Add a comment to a Jira issue
-- [`Create`](https://github.com/marketplace/actions/jira-create-issue) - Create a new Jira issue
-- [`Find issue key`](https://github.com/marketplace/actions/jira-find-issue-key) - Search for an issue key in commit message, branch name, etc. This issue key is then saved and used by the next actions in the same workflow
-- [`TODO`](https://github.com/marketplace/actions/jira-issue-from-todo) - Create a Jira issue for each TODO comment in committed code
-- [`CLI`](https://github.com/marketplace/actions/setup-jira) - Wrapped [go-jira](https://github.com/Netflix-Skunkworks/go-jira) CLI for common Jira actions
 
 ## Usage
 An example workflow to create a Jira issue for each `//TODO` in code:
@@ -30,20 +19,22 @@ jobs:
     name: Jira Example
     steps:
     - name: Login
-      uses: atlassian/gajira-login@v3
+      uses: carlosnizolli/gajira-login@v01
       env:
         JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
         JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
         JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 
-    - name: Jira TODO
-      uses: atlassian/gajira-todo@v3
-      with:
-        project: GA
-        issuetype: Task
-        description: Created automatically via GitHub Actions
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Find JIRA in Head Message
+        uses: carlosnizolli/gajira-find-issue-key@v01
+        with:
+            string: ${{ github.event.workflow_run.head_commit.message }}
+
+      - name: Find JIRA in Branch Name
+        uses: carlosnizolli/gajira-find-issue-key@v01
+        with:
+            string: ${{ github.head_ref }}
+
 ```
 
 More examples at [gajira](https://github.com/atlassian/gajira) repository
